@@ -1,6 +1,6 @@
 # Disciplina de Métodos Randômicos
-Random Methods Applied to Solution Of Geophysical Problems. 
-This repository is my study about Heuristic and Meta-heuristic methods and it is related to the ON's Random Methods Discipline.
+Métodos Randômicos aplicados à solução de problemas geofísicos é o nome completo da disciplina do Observatório Nacional ministrada pelo professor Cosme no segundo trimestre de 2019. Este repositório contém meus estudos sobre heurística e metaheurística relacionados com a disciplina de métodos randômicos.
+
 
 * Calendário: 
 
@@ -15,5 +15,5 @@ Dias |Evento
 27/08|Discussão da lista
 30/08|2ª avaliação (fim do curso)
 
-* Tema do Simnário: 
-Metaheurística baseada em música. Tratar sobre o histórico, primeiro artigo, programa montado, exemplo de aplicação
+* Tema do Seminário: 
+Busca Harmônica (Metaheurística baseada em música). Tratar sobre o histórico, primeiro artigo, programa montado, exemplo de aplicação
