@@ -1,6 +1,6 @@
 PROGRAM modmag
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
-!Programa de modelagem magnética                         !
+!Programa de modelagem direta magnética                  !
 !Criador: Victor Carreira                                !
 !Este programa é baseado em Blakely(1995) e Cosme(2018)  !
 !atualizado para o FORTRAN 2008.                         !
@@ -8,22 +8,29 @@ PROGRAM modmag
 !Para compilação: ./make                                 !
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++!
 
+!--------------------------------------------------------!
+! Para usar compilação com flags utilize:                !
+!-> gfortran -fbounds-check -fbacktrace -Wall -Wextra    !
+!-pedantic modelagem.f08 -o nomedoexecutável             !
+!--------------------------------------------------------!
 
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++!
-    !--------------Lista de Variáveis-------------------!
-    !xp,yp,zp: coordenadas do pto de obs                !
-    !xq,yq,zq: coordenadas do centro da esfera          !
-    !mi: inclinação da magnetização (graus,             !
-    !positivo abaixo da linha horizontal)               !
-    !md: declinação da magnetização (graus,             !
-    !positiva para Leste, a partir do Norte verdadeiro) !
-    !mom: momento de dipolo magnetico (A.m²)            !
-    !bx,by,bz,t: elementos do campo B gerados pelo      ! 
-    !dipolo. Saída em (nT).                             !
-    !eixo x, na direção Norte                           !
-    !eixo y, na direção Leste                           !
-    !eixo z, para baixo                                 !
-    !+++++++++++++++++++++++++++++++++++++++++++++++++++!
+
+   !+++++++++++++++++++++++++++++++++++++++++++++++++++!
+   !-----------------Lista de Variáveis----------------!
+   !+++++++++++++++++++++++++++++++++++++++++++++++++++!
+   !xp,yp,zp: coordenadas do pto de obs                !
+   !xq,yq,zq: coordenadas do centro da esfera          !
+   !mi: inclinação da magnetização (graus,             !
+   !positivo abaixo da linha horizontal)               !
+   !md: declinação da magnetização (graus,             !
+   !positiva para Leste, a partir do Norte verdadeiro) !
+   !mom: momento de dipolo magnetico (A.m²)            !
+   !bx,by,bz,t: elementos do campo B gerados pelo      ! 
+   !dipolo. Saída em (nT).                             !
+   !eixo x, na direção Norte                           !
+   !eixo y, na direção Leste                           !
+   !eixo z, para baixo                                 !
+   !+++++++++++++++++++++++++++++++++++++++++++++++++++!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!DEFINIÇÃO DE VARIÁVEIS GLOBAIS!!!!!!!!!!!!!!
@@ -34,20 +41,23 @@ IMPLICIT NONE
   INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(8,10)
   INTEGER(KIND=SP):: i,ig,np
   REAL(KIND=DP),ALLOCATABLE,DIMENSION(:):: perfil,anom,anomc,inp
-  REAL(KIND=DP):: m,mi,md,mom,a1,a2,zp,yq,F,xq,zq,amx,amy,amz,soma,rms
+  REAL(KIND=DP):: mi,md,mom,a1,a2,zp,yq,F,xq,zq,amx,amy,amz,soma,rms!,m
   REAL(KIND=DP)::ti,tf,tt,bt,bx,bxx,by,byy,bz,bzz,fx,fy,fz,xp,yp
-  REAL(KIND=DP),PARAMETER::az=0.0,ra=1.0
+  REAL(KIND=DP),PARAMETER::az=0.0!,ra=1.0
 
   CALL cpu_time(ti)
 
   ALLOCATE(perfil(1000),anom(1000),anomc(1000),inp(3))
 
-  WRITE(*,'(a,$)')'xq:'; READ*,inp(1)
-  WRITE(*,'(a,$)')'zq:'; READ*,inp(2)
-  WRITE(*,'(a,$)')'Momentum:'; READ*,inp(3)
+  !Digite os dados de entrada no modelo no terminal:
+  WRITE(*,'(a,$)')'xq:';READ*,inp(1)!Posição em x
+  WRITE(*,'(a,$)')'zq:'; READ*,inp(2)!Profundidade em z
+  WRITE(*,'(a,$)')'Momentum:'; READ*,inp(3)!Momento magnético
 
-  OPEN(2,FILE='anomalia.txt')
-  OPEN(3,FILE='ajuste.txt')
+  PRINT*,"Vetor de entradas:",inp
+
+  OPEN(2,FILE='anomalia.txt')!Dados reais (D.obs)
+  OPEN(3,FILE='fit.txt')!Ajuste
 
    ig=1
     DO WHILE(.TRUE.)
@@ -61,8 +71,9 @@ IMPLICIT NONE
 
    np=ig-1
 
-   zp=-1
-   yq=0
+   zp=-1!Altura do magnetômero
+   yq=0!Problema bi-dimensional não há dimensão y no ponto de medida.
+   yp=0!Problema bi-dimensional não há dimensão y no corpo anômalo.
 
 !Características do Campo Geomagnético local (Rio de Janeiro)
    mi=-34
@@ -86,7 +97,7 @@ IMPLICIT NONE
  
    DO i=1,np
      xp=perfil(i)
-     CALL dipole(xp,yp,zp,ra,mi,md,mom,xp,yp,zp,bx,by,bz)
+     CALL dipole(xp,yp,zp,mi,md,mom,xp,yp,zp,bx,by,bz)!O problema do NaN está aqui
        bxx=bx+fx
        byy=by+fy
        bzz=bz+fz
@@ -97,16 +108,17 @@ IMPLICIT NONE
      WRITE(6,FMT=*)'======== AVALIAÇÃO ======='
      WRITE(6,FMT=*)'Número de pontos=',np
 
-!Cálculo do RMS
+!Cálculo do Resíduo:
 
   soma=0
    DO i=1,np
       soma=soma+(anomc(i)-anom(i))**2
+      !print*,soma
    END DO 
 
   rms=DSQRT(soma/DFLOAT(np))
 
-    WRITE(6,FMT=*)'RMS=',rms,"nT" !Escreve na tela o RMS
+    WRITE(6,FMT=*)'Resíduo (RMS)',rms,"nT" !Escreve na tela o RMS
 
 CALL cpu_time(tf)
     
@@ -141,12 +153,17 @@ CALL cpu_time(tf)
  IMPLICIT NONE
     REAL(KIND=DP), INTENT(IN)::incl,decl,azim
     REAL(KIND=DP), INTENT(OUT)::a,b,c
-    REAL(KIND=DP):: xincl,xdecl,xazim
-    REAL(KIND=DP), PARAMETER::d2rad=0.017453293
+    REAL(KIND=DP):: xincl,xdecl,pi,d2rad
+    REAL(KIND=DP), PARAMETER:: xazim=0.0 !No caso onde o corpo não está inclinado
+    
+    !d2rad=0.017453293
 
+    pi=2.0*ACOS(0.0)
+    d2rad=pi/180.0
+   
      xincl=incl*d2rad
      xdecl=decl*d2rad
-     xazim=azim*d2rad
+     !xazim=azim*d2rad
      a=COS(xincl)*COS(xdecl-xazim)
      b=COS(xincl)*SIN(xdecl-xazim)
      c=SIN(xincl)
@@ -155,14 +172,15 @@ END SUBROUTINE dircos
 
 !-----------------------------------------------------------------
 
-SUBROUTINE dipole(xq,yq,zq,ra,mi,md,m,xp,yp,zp,bx,by,bz)
+SUBROUTINE dipole(xq,yq,zq,mi,md,moment,xp,yp,zp,bx,by,bz)
 !This subroutine computes the three components of magnetic induction
 !caused a uniformly magnetized sphere. X axis is north, Z axis is
-!donw.
+!donw. It is a adaptation of Blakely "dipole" subroutine to input 
+!momentum. 
 
 !INPUT PARAMETERS:
 ! Observation point located at (xp,yp,zp). Shpere centered at (xq,yq,zq).
-!Magnetization of sphere defined by intensity "m", inclination "mi",
+!Dipole Momentum of sphere defined by "moment" (A.m²), inclination "mi",
 !and declination "md". Units of distance irrelevant but must be consistent.
 !All angles in degrees. Intensity of magnetization in A/m. Requires
 !subroutine DIRCOS.
@@ -170,21 +188,25 @@ SUBROUTINE dipole(xq,yq,zq,ra,mi,md,m,xp,yp,zp,bx,by,bz)
 !OUTPUT PARAMETERS:
 ! The three components of magnetic induction (bx,by,bz) in units of nT.
 IMPLICIT NONE
-    REAL(KIND=DP), INTENT(IN)::xq,yq,zq,ra,mi,md,m,xp,yp,zp
+    REAL(KIND=DP), INTENT(IN)::xq,yq,zq,mi,md,xp,yp,zp,moment!,m,ra
     REAL(KIND=DP), INTENT(OUT)::bx,by,bz
-    REAL(KIND=DP):: mx,my,mz,moment,r,rx,ry,rz,r2,r5,dot
-    REAL(KIND=DP), PARAMETER::pi=3.14159265,t2nt=1.0E9,cm=1.0E-7,az=0.0
+    REAL(KIND=DP):: mx,my,mz,r,rx,ry,rz,r2,r5,dot
+    REAL(KIND=DP), PARAMETER::t2nt=1.0E9,cm=1.0E-7,az=0.0!,pi=3.14159265
     
+
+    print*,mi,md
+
     CALL dircos(mi,md,az,mx,my,mz)
+    !print*,rx,ry,rz
      rx=xp-xq
      ry=yp-yq
      rz=zp-zq
      r2=rx**2+ry**2+rz**2
      r=SQRT(r2)
-     IF(r .eq. 0.0)PAUSE 'Dipole: Bad argument detected!'
+     !IF(r.eq.0.0)PAUSE 'Dipole: Bad argument detected!'
      r5=r**5
      dot=rx*mx+ry*my+rz*mz
-     moment=4.0*pi*(ra**3)*m/3.0
+     !moment=4.0*pi*(ra**3)*m/3.0 utilizado quando a entrada é o magnetização(m) e o volume(ra)
      bx=cm*moment*(3.0*dot*rx-r2*mx)/r5
      by=cm*moment*(3.0*dot*ry-r2*my)/r5
      bz=cm*moment*(3.0*dot*rz-r2*mz)/r5
