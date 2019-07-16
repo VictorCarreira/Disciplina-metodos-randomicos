@@ -77,10 +77,10 @@ IMPLICIT NONE
 
 !Características do Campo Geomagnético local (Rio de Janeiro)
    mi=-34
-   md=0
+   md=0!-22.54 !(IGRF-2014. obtido em http://extranet.on.br/jlkm/magdec/index.html)
    F=23500
 
-
+!Caracteristicas da Fonte Magnética
    xq=inp(1)
    zq=inp(2)
    mom=inp(3)
@@ -194,7 +194,7 @@ IMPLICIT NONE
     REAL(KIND=DP), PARAMETER::t2nt=1.0E9,cm=1.0E-7,az=0.0!,pi=3.14159265
     
 
-    print*,mi,md
+    print*
 
     CALL dircos(mi,md,az,mx,my,mz)
     !print*,rx,ry,rz
