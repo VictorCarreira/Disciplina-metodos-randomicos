@@ -42,12 +42,12 @@
 	np=ig-1
 
 	zp=-1d0
-	yq=0d0
+        yq=0d0
 
 !!  caracteristicas do campo geomagnético local
 	mi=-34d0
-	md=0d0
-	F=23500d0
+        md=0d0
+        F=23500d0
 
 	xq=inp(1)
 	zq=inp(2)
