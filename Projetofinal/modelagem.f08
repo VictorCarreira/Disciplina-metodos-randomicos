@@ -14,6 +14,12 @@ PROGRAM modmag
 !-pedantic modelagem.f08 -o nomedoexecutável             !
 !--------------------------------------------------------!
 
+!---------------------------------------------------------!
+!Debugando o código: -g -Wall -Wextra -Warray-temporaries !
+!-Wconversion -fimplicit-none -fbacktrace                 !
+!-ffree-line-length-0 -fcheck=all                         !
+!-ffpe-trap=zero,overflow,underflow -finit-real=nan       !
+!---------------------------------------------------------!   
 
    !+++++++++++++++++++++++++++++++++++++++++++++++++++!
    !-----------------Lista de Variáveis----------------!
@@ -87,8 +93,8 @@ IMPLICIT NONE
 
 !Cálculo das componentes do campo Regional (Planeta Terra)
 
-  !CALL dircos(mi,md,az,amx,amy,amz)!no caso 2D considera-se o azimute 0
-   CALL dircos(mi,md,amx,amy,amz)
+  CALL dircos(mi,md,az,amx,amy,amz)!no caso 2D considera-se o azimute 0
+  ! CALL dircos(mi,md,amx,amy,amz)!Subrotina do Cosme
 
 
    fx=F*amx
@@ -99,7 +105,7 @@ IMPLICIT NONE
  
    DO i=1,np
      xp=perfil(i)
-     CALL dipole(xp,yp,zp,mi,md,mom,xp,yp,zp,bx,by,bz)!O problema do NaN está aqui
+     CALL dipole(xq,yq,zq,mi,md,mom,xp,yp,zp,bx,by,bz)!O problema do NaN está aqui
        bxx=bx+fx
        byy=by+fy
        bzz=bz+fz
@@ -159,13 +165,14 @@ SUBROUTINE dircos(incl,decl,azim,a,b,c)
     REAL(KIND=DP), PARAMETER:: xazim=0.0 !No caso onde o corpo não está inclinado
     
    !d2rad=0.017453293
+   
 
     pi=2.0*ACOS(0.0)
     d2rad=pi/180.0
    
      xincl=incl*d2rad
      xdecl=decl*d2rad
-     xazim=azim*d2rad
+     !xazim=azim*d2rad
      a=COS(xincl)*COS(xdecl-xazim)
      b=COS(xincl)*SIN(xdecl-xazim)
      c=SIN(xincl)
@@ -196,9 +203,10 @@ IMPLICIT NONE
     REAL(KIND=DP), PARAMETER::t2nt=1.0d9,cm=1.0d-7,az=0.0!,pi=3.14159265
 
     CALL dircos(mi,md,az,mx,my,mz)
-    !print*,rx,ry,rz
+    
      rx=xp-xq
      ry=yp-yq
+     ry=ry*0.0
      rz=zp-zq
      r2=rx**2+ry**2+rz**2
      r=SQRT(r2)
