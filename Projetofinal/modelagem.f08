@@ -140,7 +140,7 @@ CALL cpu_time(tf)
  
  CONTAINS
 
-! SUBROUTINE dircos(incl,decl,azim,a,b,c)
+SUBROUTINE dircos(incl,decl,azim,a,b,c)
 !This subroutine computes direction cosines from inclination and
 !declination.
 
@@ -152,29 +152,29 @@ CALL cpu_time(tf)
 !OUTPUT PARAMETERS:
 !a,b,c: the three direction cosines.
 
-! IMPLICIT NONE
-!   REAL(KIND=DP), INTENT(IN)::incl,decl,azim
-!    REAL(KIND=DP), INTENT(OUT)::a,b,c
-!    REAL(KIND=DP):: xincl,xdecl,pi,d2rad
-!    REAL(KIND=DP), PARAMETER:: xazim=0.0 !No caso onde o corpo não está inclinado
+ IMPLICIT NONE
+    REAL(KIND=DP), INTENT(IN)::incl,decl,azim
+    REAL(KIND=DP), INTENT(OUT)::a,b,c
+    REAL(KIND=DP):: xincl,xdecl,pi,d2rad
+    REAL(KIND=DP), PARAMETER:: xazim=0.0 !No caso onde o corpo não está inclinado
     
-    !d2rad=0.017453293
+   !d2rad=0.017453293
 
-!    pi=2.0*ACOS(0.0)
-!    d2rad=pi/180.0
+    pi=2.0*ACOS(0.0)
+    d2rad=pi/180.0
    
-!     xincl=incl*d2rad
-!     xdecl=decl*d2rad
-     !xazim=azim*d2rad
-!     a=COS(xincl)*COS(xdecl-xazim)
-!     b=COS(xincl)*SIN(xdecl-xazim)
-!     c=SIN(xincl)
+     xincl=incl*d2rad
+     xdecl=decl*d2rad
+     xazim=azim*d2rad
+     a=COS(xincl)*COS(xdecl-xazim)
+     b=COS(xincl)*SIN(xdecl-xazim)
+     c=SIN(xincl)
 
-!END SUBROUTINE dircos
+END SUBROUTINE dircos
 
 !-----------------------------------------------------------------
 
-!SUBROUTINE dipole(xq,yq,zq,mi,md,moment,xp,yp,zp,bx,by,bz)
+SUBROUTINE dipole(xq,yq,zq,mi,md,moment,xp,yp,zp,bx,by,bz)
 !This subroutine computes the three components of magnetic induction
 !caused a uniformly magnetized sphere. X axis is north, Z axis is
 !donw. It is a adaptation of Blakely "dipole" subroutine to input 
@@ -189,81 +189,30 @@ CALL cpu_time(tf)
 
 !OUTPUT PARAMETERS:
 ! The three components of magnetic induction (bx,by,bz) in units of nT.
-!IMPLICIT NONE
-!    REAL(KIND=DP), INTENT(IN)::xq,yq,zq,mi,md,xp,yp,zp,moment!,m,ra
-!    REAL(KIND=DP), INTENT(OUT)::bx,by,bz
-!    REAL(KIND=DP):: mx,my,mz,r,rx,ry,rz,r2,r5,dot
-!    REAL(KIND=DP), PARAMETER::t2nt=1.0d9,cm=1.0d-7,az=0.0!,pi=3.14159265
+IMPLICIT NONE
+    REAL(KIND=DP), INTENT(IN)::xq,yq,zq,mi,md,xp,yp,zp,moment!,m,ra
+    REAL(KIND=DP), INTENT(OUT)::bx,by,bz
+    REAL(KIND=DP):: mx,my,mz,r,rx,ry,rz,r2,r5,dot
+    REAL(KIND=DP), PARAMETER::t2nt=1.0d9,cm=1.0d-7,az=0.0!,pi=3.14159265
 
-!    CALL dircos(mi,md,az,mx,my,mz)
+    CALL dircos(mi,md,az,mx,my,mz)
     !print*,rx,ry,rz
-!     rx=xp-xq
-!     ry=yp-yq
-!     rz=zp-zq
-!     r2=rx**2+ry**2+rz**2
-!     r=SQRT(r2)
-     !IF(r.eq.0.0)PAUSE 'Dipole: Bad argument detected!'
-!     r5=r**5
-!     dot=rx*mx+ry*my+rz*mz
+     rx=xp-xq
+     ry=yp-yq
+     rz=zp-zq
+     r2=rx**2+ry**2+rz**2
+     r=SQRT(r2)
+     IF(r.eq.0.0)PAUSE 'Dipole: Bad argument detected!'
+     r5=r**5
+     dot=rx*mx+ry*my+rz*mz
      !moment=4.0*pi*(ra**3)*m/3.0 utilizado quando a entrada é o magnetização(m) e o volume(ra)
-!     bx=cm*moment*(3.0*dot*rx-r2*mx)/r5
-!     by=cm*moment*(3.0*dot*ry-r2*my)/r5
-!     bz=cm*moment*(3.0*dot*rz-r2*mz)/r5
-!     bx=bx*t2nt
-!     by=by*t2nt
-!     bz=bz*t2nt
+     bx=cm*moment*(3.0*dot*rx-r2*mx)/r5
+     by=cm*moment*(3.0*dot*ry-r2*my)/r5
+     bz=cm*moment*(3.0*dot*rz-r2*mz)/r5
+     bx=bx*t2nt
+     by=by*t2nt
+     bz=bz*t2nt
 
-!END SUBROUTINE dipole
-
-	subroutine dipole(xq,yq,zq,mi,md,moment,xp,yp,zp,bx,by,bz)
-
-!     VARIAVEIS UTILIZADAS
-!	xp,yp e zp = COORDENADAS DO PONTO DE OBSERVAÇÃO (metros)
-!	xq,yq,zq = coordenadas do centro da esfera (metros)
-!	mi = inclinação da magnetização (graus, positivo abaixo da horizontal) 
-!	md = declinação da magnetização (graus, positiva para Leste, a partir do Norte verdadeiro)
-!	moment = momento de dipolo magnetico (A.m²)
-!	bx,by,bz,t = elementos do campo B gerados delo dipolo - dado de saida (nT)
-!	eixo x, na direção Norte
-!	eixu y, na direção Leste
-!	eixo z, para baixo 
-
-	implicit real*8 (a-h,o-z)
-     	real*8 mi,md,m,mx,my,mz,moment
-	data t2nt/1.d9/,cm/1.d-7/
-	pi=2.d0*acos(0.d0)
-	call dircos(mi,md,mx,my,mz)
-	rx=xp-xq
-	ry=yp-yq
-	rz=zp-zq
-	r2=rx**2+ry**2+rz**2
-	r=sqrt(r2)
-	if(r.eq.0.)pause 'DIPOLE: bad argument detected.'
-	r5=r**5
-	dot=rx*mx+ry*my+rz*mz
-	bx=cm*moment*(3.d0*dot*rx-r2*mx)/r5
-	by=cm*moment*(3.d0*dot*ry-r2*my)/r5
-	bz=cm*moment*(3.d0*dot*rz-r2*mz)/r5
-	bx=bx*t2nt
-	by=by*t2nt
-	bz=bz*t2nt
-	return
-	end	
-!!!!!!!!!!!!!!!!!!
-
-    	subroutine dircos(incl,decl,a,b,c)
-	implicit real*8 (a-h,o-z) 
-      real*8 incl
-	pi=2.d0*acos(0.d0)
-	d2rad=pi/180.d0
-	xincl=incl*d2rad
-	xdecl=decl*d2rad
-	a=cos(xincl)*cos(xdecl)
-	b=cos(xincl)*sin(xdecl)
-	c=sin(xincl)
-	return
-	end
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+END SUBROUTINE dipole
 
 END PROGRAM modmag
