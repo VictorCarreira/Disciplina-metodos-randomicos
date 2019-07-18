@@ -62,8 +62,12 @@ IMPLICIT NONE
 
   PRINT*,"Vetor de entradas:",inp
 
-  OPEN(2,FILE='anomalia.txt')!Dados reais (D.obs)
-  OPEN(3,FILE='fit.txt')!Ajuste
+  !Dados de entrada:
+  OPEN(2,FILE='anomalia.txt')!Dado observado
+  
+  !Dados de saída:
+  OPEN(3,FILE='fit.txt')!Dado calculado
+  OPEN(4,FILE='rrms.txt')!Resíduo
 
    ig=1
     DO WHILE(.TRUE.)
@@ -77,7 +81,7 @@ IMPLICIT NONE
 
    np=ig-1
 
-   zp=-1!Altura do magnetômero
+   zp=-1!Altura do magnetômero (ponto de medida).
    yq=0!Problema bi-dimensional não há dimensão y no ponto de medida.
    yp=0!Problema bi-dimensional não há dimensão y no corpo anômalo.
 
@@ -94,8 +98,6 @@ IMPLICIT NONE
 !Cálculo das componentes do campo Regional (Planeta Terra)
 
   CALL dircos(mi,md,az,amx,amy,amz)!no caso 2D considera-se o azimute 0
-  ! CALL dircos(mi,md,amx,amy,amz)!Subrotina do Cosme
-
 
    fx=F*amx
    fy=F*amy
@@ -105,7 +107,7 @@ IMPLICIT NONE
  
    DO i=1,np
      xp=perfil(i)
-     CALL dipole(xq,yq,zq,mi,md,mom,xp,yp,zp,bx,by,bz)!O problema do NaN está aqui
+     CALL dipole(xq,yq,zq,mi,md,mom,xp,yp,zp,bx,by,bz)!Atenção na entrada dos pontos do modelo e dos pontos de medida.
        bxx=bx+fx
        byy=by+fy
        bzz=bz+fz
@@ -121,12 +123,12 @@ IMPLICIT NONE
   soma=0
    DO i=1,np
       soma=soma+(anomc(i)-anom(i))**2
-      !print*,soma
    END DO 
 
   rms=DSQRT(soma/DFLOAT(np))
 
     WRITE(6,FMT=*)'Resíduo (RMS)',rms,"nT" !Escreve na tela o RMS
+    WRITE(4,FMT=12)rms !Escreve no arquivo de saída o RMS
 
 CALL cpu_time(tf)
     
@@ -138,6 +140,8 @@ CALL cpu_time(tf)
 !!!!!!!!!!!!!!!!!!!!!FORMATOS UTILIZADOS!!!!!!!!!!!!!!!!!!!!!!!
 
 11 FORMAT(3(ES18.6E3,2X))
+12 FORMAT(F10.4)
+
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
