@@ -10,7 +10,7 @@ PROGRAM BuscaHarmonica
    INTEGER::NVAR,NG,NH,HMS
    INTEGER::currentIteration,MaxItr,I,index
    REAL(KIND=DP)::PARmin,PARmax,bwmin,bwmax,HMCR,PAR,newFitness,BestFit,WorstFit
-   REAL(KIND=DP)::coef,RES,RAN,pvbRan
+   REAL(KIND=DP)::coef,RES,RAN,pvbRan,ti,tf,tt
    INTEGER(KIND=DP)::pp
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:)::fit,NCHV,BestGen,BW,gx
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::HM,PVB
