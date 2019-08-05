@@ -1,12 +1,15 @@
 PROGRAM BuscaHarmonica
 
-    !--------------------Sumário das Variáveis------------------------!
-    !HS: Harmony memory !
-    !HMS: Harmony memory size                                         !
-    !HMCR: Harmony consideration rate !
-    !PAR: Pitch adjusting rate !
-    !bw : termination criterion
-    !
+    !-----------------Sumário das Variáveis-----------------!
+    !HS: Harmony memory                                     !
+    !HMS: Harmony memory size                               !
+    !HMCR: Harmony consideration rate                       !
+    !PAR: Pitch adjusting rate                              !
+    !bw : termination criterion                             !
+    !MaxItr: Maximal iteraction                             !
+    !NVAR: Number of variables                              !
+    !-------------------------------------------------------!
+
 
 
 
