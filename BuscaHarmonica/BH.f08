@@ -15,6 +15,8 @@ PROGRAM BuscaHarmonica
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:)::fit,NCHV,BestGen,BW,gx
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::HM,PVB
 
+ 
+OPEN(1,FILE='ajuste.txt')
 
 
  !Entradas
@@ -109,7 +111,8 @@ CONTAINS
 
  ALLOCATE(SUBS(1:NVAR))
 
- PVB(1,1) = 1.0
+ ! Tamanho das variáveis
+ PVB(1,1) = 1.0 
  PVB(1,2) = 4.0
  PVB(2,1) = 5.0
  PVB(2,2) = 10.0
@@ -117,7 +120,8 @@ CONTAINS
 DO i=1,HMS
   DO j=1,NVAR
     HM(i,j)=randval(PVB(j,1),PVB(j,2))
-  END DO
+  END DO 
+
   DO z=1,NVAR
     SUBS(z)=HM(i,z)
   END DO
@@ -126,15 +130,15 @@ END DO
 
  END SUBROUTINE INITIALIZE
 !----------------------------------------------------------------------
- SUBROUTINE UpdateHM( NewFit )
+SUBROUTINE UpdateHM( NewFit )
 
   REAL(8)::NewFit
-  INTEGER::BestIndex,WorstIndex,I,J
+  INTEGER::BestIndex,WorstIndex,i,j
 
 IF(currentIteration==0) THEN
 
 BestFit=fit(1)
-DO I = 1,HMS
+DO i = 1,HMS
 
 IF( fit(i) < BestFit ) THEN
 
@@ -166,9 +170,9 @@ ELSE
 
 IF( NewFit < BestFit ) THEN
 
-DO J=1,NVAR
+DO j=1,NVAR
 
-HM(WorstIndex,J)=NCHV(J)
+HM(WorstIndex,j)=NCHV(j)
 
 END DO
 
@@ -179,9 +183,9 @@ BestIndex=WorstIndex
 
 ELSE
 
-DO J=1,NVAR
+DO j=1,NVAR
 
-  HM(WorstIndex,J)=NCHV(J)
+  HM(WorstIndex,j)=NCHV(j)
 
 END DO
 
@@ -207,12 +211,13 @@ END IF
 IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
 
  PRINT*,BESTFIT,BestGen(1),BestGen(2)
+ WRITE(1,FMT=*) BESTFIT,BestGen(1), BestGen(2)
 
 END IF
 
-end SUBROUTINE UpdateHM ! function
+END SUBROUTINE UpdateHM ! function
 !------------------------------------------
-function randval(Maxv,Minv)
+FUNCTION randval(Maxv,Minv)
 
  REAL(8)::randval,RAND,Maxv,Minv
 
@@ -220,9 +225,9 @@ function randval(Maxv,Minv)
 
  randval=RAND*(Maxv-Minv)+Minv
 
-end function randval
+ END FUNCTION randval
 !------------------------------------------
-function randint(Maxv,Minv)
+FUNCTION randint(Maxv,Minv)
 
  REAL(8)::RAND
  INTEGER::randint,Maxv,Minv
@@ -231,7 +236,7 @@ function randint(Maxv,Minv)
 
  randint=INT(RAND*(Maxv-Minv)+Minv + 0.5)
 
-end function randint
+ END FUNCTION randint
 !------------------------------------------
 END PROGRAM BuscaHarmonica
 
