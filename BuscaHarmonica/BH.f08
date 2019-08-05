@@ -1,5 +1,19 @@
 PROGRAM BuscaHarmonica
 
+    !--------------------Sumário das Variáveis------------------------!
+    !HS: Harmony memory !
+    !HMS: Harmony memory size                                         !
+    !HMCR: Harmony consideration rate !
+    !PAR: Pitch adjusting rate !
+    !bw : termination criterion
+    !
+
+
+
+
+
+
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!DEFINIÇÃO DE VARIÁVEIS GLOBAIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -99,6 +113,7 @@ CONTAINS
   REAL(8),DIMENSION(1:),INTENT(IN)::sol
   REAL(8)::Fitness
 
+!   Fitness=(sol(1)**2+sol(2)**2)!Função da esfera. Deu ruim!
   Fitness=-(sol(1)+sol(2))
 !  Fitness= -(EXP(1/2*(sol(1)+sol(2)-25)**2)+sin(4*sol(1)-3*sol(2))**4+1/2*(2*sol(1)+sol(2)-10)**2)
 
