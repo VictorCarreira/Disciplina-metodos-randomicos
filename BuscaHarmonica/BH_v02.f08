@@ -16,10 +16,10 @@ PROGRAM BuscaHarmonica
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
  IMPLICIT NONE
-   INTEGER,PARAMETER::SP = SELECTED_INT_KIND(r=12)
-   INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(12,14)
-   INTEGER::NVAR,NG,NH,HMS
-   INTEGER::currentIteration,MaxItr,i,j,index
+   INTEGER,PARAMETER::SP = SELECTED_INT_KIND(r=4)
+   INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(8,8)
+   INTEGER(KIND=DP)::NVAR,NG,NH,HMS
+   INTEGER(KIND=DP)::currentIteration,MaxItr,i,j,index
    REAL(KIND=DP)::PARmin,PARmax,bwmin,bwmax,HMCR,PAR,newFitness,BestFit,WorstFit
    REAL(KIND=DP)::coef,RES,RAN,pvbRan,ti,tf,tt
    INTEGER(KIND=DP)::pp
@@ -32,7 +32,7 @@ OPEN(2,FILE='saida.txt')
 
 
 
- !Entradas
+!Dimensiona os parâmetros da Busca:
  NVAR=10
  NG=1
  NH=0
@@ -91,7 +91,7 @@ DO WHILE(currentIteration<MaxItr)
        ELSE
         NCHV(i) = randval( PVB(i,1), PVB(i,2) )
        END IF       
-   newFitness = Phi(dado,1.3,0.2)
+   newFitness = Phi(dado,1.3d0,0.2d0)
    CALL UpdateHM( newFitness )
    currentIteration=currentIteration+1
   END DO
@@ -115,10 +115,14 @@ CONTAINS
 !---------------------------------------------------------
  FUNCTION Phi(dado,a,b)
  !Função de ajuste de dados. Datamisfit
-  REAL(8),DIMENSION(:,:),INTENT(IN)::dado
-  REAL(8)::phi,a,b
-
-  phi=0
+  INTEGER,PARAMETER::SP = SELECTED_INT_KIND(r=4)
+  INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(8,8)
+  INTEGER(KIND=SP):: i
+  REAL(KIND=DP)::phi
+  REAL(KIND=DP),INTENT(IN)::a,b
+  REAL(KIND=DP),DIMENSION(:,:),INTENT(IN)::dado
+ 
+  phi=0.0
   DO i=1,6
     phi=phi+(dado(i,2)-a*dado(i,1)+b)**2
   END DO 
@@ -128,11 +132,11 @@ CONTAINS
  SUBROUTINE INITIALIZE()
 
  INTEGER::i,j,z
- REAL(8), DIMENSION(:), ALLOCATABLE::SUBS
+ REAL(8), DIMENSION(:,:), ALLOCATABLE::SUBS
 
- ALLOCATE(SUBS(1:NVAR))
+ ALLOCATE(SUBS(1:NVAR,1:HMS))
 
- ! Tamanho das variáveis
+ ! Procedimento para inicializar HM randomicamente
  PVB(1,1) = 1.0 
  PVB(1,2) = 4.0
  PVB(2,1) = 5.0
@@ -144,9 +148,9 @@ DO i=1,HMS
   END DO 
 
   DO z=1,NVAR
-    SUBS(z)=HM(i,z)
+    SUBS(z,i)=HM(i,z)
   END DO
-    fit(i) = Phi(SUBS,1,2)
+    fit(i) = Phi(SUBS,1.0d0,2.0d0)
 END DO
 
  END SUBROUTINE INITIALIZE
@@ -251,11 +255,13 @@ FUNCTION randval(Maxv,Minv)
 FUNCTION randint(Maxv,Minv)
 
  REAL(8)::RAND
- INTEGER::randint,Maxv,Minv
+ INTEGER(8)::Minv
+ INTEGER(4)::randint,Maxv
 
  CALL RANDOM_NUMBER(RAND)
 
  randint=INT(RAND*(Maxv-Minv)+Minv + 0.5)
+ 
 
  END FUNCTION randint
 !------------------------------------------
