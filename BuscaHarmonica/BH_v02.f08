@@ -24,7 +24,7 @@ PROGRAM BuscaHarmonica
 !a,b-parâmetros do modelo
 !O melhor modelo é aquele que minimiza a fução data misfit (phi):
 !                  Φ=Σ(yd-yc)²
-!                  Φ=Σ(yd-axd+b)²
+!                  Φ=Σ(yd-axd-b)²
 !Entra (xd[i],yd[i]) e sai (a,b).
 
 
@@ -74,7 +74,7 @@ OPEN(2,FILE='saida.txt')
 
 
 !Dimensiona os parâmetros da Busca:
- NVAR=10
+ NVAR=2 !número de parâmetros
  NG=1
  NH=0
  MaxItr=10000
@@ -100,7 +100,7 @@ OPEN(2,FILE='saida.txt')
 
  currentIteration  = 0
 
-DO WHILE(currentIteration<MaxItr)
+!DO WHILE(currentIteration<MaxItr)
    PAR=(PARmax-PARmin)/(MaxItr)*currentIteration+PARmin
    coef=LOG(bwmin/bwmax)/MaxItr
   DO pp =1,NVAR
@@ -132,12 +132,11 @@ DO WHILE(currentIteration<MaxItr)
        ELSE
         NCHV(i) = randval( PVB(i,1), PVB(i,2) )
        END IF       
-   newFitness = Phi(dado,1.3d0,0.2d0)
-   CALL UpdateHM( newFitness )
+   newFitness = Phi(dado,HM(i,1),HM(i,2))
+   !CALL UpdateHM( newFitness )
    currentIteration=currentIteration+1
   END DO
-END DO
-
+!END DO
 
  CALL cpu_time(tf)
 
@@ -165,7 +164,7 @@ CONTAINS
  
   phi=0.0
   DO i=1,6
-    phi=phi+(dado(i,2)-a*dado(i,1)+b)**2
+    phi=phi+(dado(i,2)-a*dado(i,1)-b)**2
   END DO 
 
  END FUNCTION Phi
@@ -174,25 +173,47 @@ CONTAINS
 
  INTEGER::i,j,z
  REAL(8), DIMENSION(:,:), ALLOCATABLE::SUBS
+ REAL(8)::a,b
+ 
 
  ALLOCATE(SUBS(1:NVAR,1:HMS))
 
  ! Procedimento para inicializar HM randomicamente
- PVB(1,1) = 1.0 
- PVB(1,2) = 4.0
- PVB(2,1) = 5.0
- PVB(2,2) = 10.0
+ PVB(1,1) = 1.0 !amin
+ PVB(1,2) =-2.0  !bmin
+ PVB(2,1) = 5.0  !amax
+ PVB(2,2) = 2.0  !bmax
 
-DO i=1,HMS
-  DO j=1,NVAR
-    HM(i,j)=randval(PVB(j,1),PVB(j,2))
-  END DO 
+print*,'Matriz PVB=' 
+print*,PVB(1,1),PVB(1,2)
+print*,PVB(2,1),PVB(2,2)
 
-  DO z=1,NVAR
-    SUBS(z,i)=HM(i,z)
+
+
+DO i=1,HMS !5
+  DO j=1,NVAR !2
+    HM(i,j)=randval(PVB(1,j),PVB(2,j))
   END DO
-    fit(i) = Phi(SUBS,1.0d0,2.0d0)
 END DO
+
+print*,'Matriz HM=' 
+print*,HM(1,1),HM(1,2)
+print*,HM(2,1),HM(2,2)
+print*,HM(3,1),HM(3,2)
+print*,HM(4,1),HM(4,2)
+print*,HM(5,1),HM(5,2)
+
+!pause
+!  DO z=1,NVAR
+ !   SUBS(z,i)=HM(i,z)
+  !END DO
+
+ DO i=1,HMS
+    a=HM(i,1)
+    b=HM(i,2)
+    fit(i) = Phi(dado,a,b)
+    print*,'fit(i)=',fit(i)
+ END DO
 
  END SUBROUTINE INITIALIZE
 !----------------------------------------------------------------------
@@ -204,6 +225,7 @@ SUBROUTINE UpdateHM( NewFit )
 IF(currentIteration==0) THEN
 
 BestFit=fit(1)
+
 DO i = 1,HMS
 
 IF( fit(i) < BestFit ) THEN
@@ -281,15 +303,17 @@ IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
 
 END IF
 
-END SUBROUTINE UpdateHM ! function
+END SUBROUTINE UpdateHM 
+
+! function
 !------------------------------------------
 FUNCTION randval(Maxv,Minv)
 
- REAL(8)::randval,RAND,Maxv,Minv
+ REAL(8)::randval,Maxv,Minv
+ !REAL(8)::randval,RAND,Maxv,Minv
+ !CALL RANDOM_NUMBER(RAND)
 
- CALL RANDOM_NUMBER(RAND)
-
- randval=RAND*(Maxv-Minv)+Minv
+ randval=RAND()*(Maxv-Minv)+Minv
 
  END FUNCTION randval
 !------------------------------------------
