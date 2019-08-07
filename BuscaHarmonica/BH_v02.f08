@@ -1,4 +1,35 @@
 PROGRAM BuscaHarmonica
+! Ajuste de uma reta via busca harmonica
+!
+!                 f(x)=ax+b            
+!
+!
+!     f(x)|
+!         |          /  * 
+!         |        */
+!         |        /
+!         |      */
+!         |   *  /
+!         |     /
+!         |    /*     
+!         | * /    
+!         |  /   
+!         | /  
+!       b_|/ * 
+!         |____________________________________ 
+!                                              x   
+!
+!*-dados (xd,yd)
+!/-ptos da reta: dado calculado (xc,yc)
+!a,b-parâmetros do modelo
+!O melhor modelo é aquele que minimiza a fução data misfit (phi):
+!                  Φ=Σ(yd-yc)²
+!                  Φ=Σ(yd-axd+b)²
+!Entra (xd[i],yd[i]) e sai (a,b).
+
+     
+
+
 
     !-----------------Sumário das Variáveis-----------------!
     !HS: Harmony memory                                     !
