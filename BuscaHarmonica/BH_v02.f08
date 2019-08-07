@@ -61,7 +61,7 @@ PROGRAM BuscaHarmonica
    INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(8,8)
    INTEGER(KIND=DP)::NVAR,NG,NH,HMS
    INTEGER(KIND=DP)::currentIteration,MaxItr,i,j,index
-   REAL(KIND=DP)::PARmin,PARmax,bwmin,bwmax,HMCR,PAR,newFitness,BestFit,WorstFit
+   REAL(KIND=DP)::PARmin,PARmax,bwmin,bwmax,HMCR,PAR,newFitness
    REAL(KIND=DP)::coef,RES,RAN,pvbRan,ti,tf,tt
    INTEGER(KIND=DP)::pp
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:)::fit,NCHV,BestGen,BW,gx
@@ -217,10 +217,14 @@ print*,HM(5,1),HM(5,2)
 
  END SUBROUTINE INITIALIZE
 !----------------------------------------------------------------------
-SUBROUTINE UpdateHM( NewFit )
+SUBROUTINE UpdateHM(currentIteration,BestGen,fit, NCHV, HM, NewFit )
 
-  REAL(8)::NewFit
-  INTEGER::BestIndex,WorstIndex,i,j
+  REAL(8),INTENT(INOUT)::NewFit
+  REAL(8),INTENT(IN),DIMENSION(:):: BestGen,fit,NCHV
+  REAL(8),INTENT(IN),DIMENSION(:,:)::HM
+  REAL(8),INTENT(IN):: currentIteration
+  REAL(8)::BestFit,WorstFit
+  INTEGER(8)::BestIndex,WorstIndex,i,j
 
 IF(currentIteration==0) THEN
 
