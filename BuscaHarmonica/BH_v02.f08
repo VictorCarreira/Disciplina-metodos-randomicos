@@ -27,9 +27,6 @@ PROGRAM BuscaHarmonica
 !                  Φ=Σ(yd-axd+b)²
 !Entra (xd[i],yd[i]) e sai (a,b).
 
-     
-
-
 
     !-----------------Sumário das Variáveis-----------------!
     !HS: Harmony memory                                     !
@@ -40,6 +37,19 @@ PROGRAM BuscaHarmonica
     !MaxItr: Maximal iteraction                             !
     !NVAR: Number of parameters                             !
     !-------------------------------------------------------!
+
+!     O HMRC pode ser definido como a taxa de probabilidade de se selecionar um 
+!componente da memória de harmonia atual, Harmony memobry - HM. Daí a diferença
+!'1-HMCR' é a probabilidade de se gerar indivíduos aleatoriamente. Por exemplo, 
+!HMCR=0,70 indica uma probabilidade de 70% de se selecionar um novo indivíduo
+!a partir de HM. Ao passo que PAR, por sua vez, pode ser definido como a probabi
+!lidade de um candidato presente em HM ser modificado, através de uma iteração. 
+!Por exemplo, PAR=0,1 representa uma probabilidade de 10% de um indivíduo adjacen
+!te a HM ser selecionado através do ajuste de passo. Consequentemente, '1-PAR' in
+!dica a probabilidade de não selecionar um indivíduo adjacente, distanciado do passo.
+!Os parâmetros HMCR e PAR do algoritmo controlam a geração de soluções candidatas
+!, assim como a velocidade de convergência.
+
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
