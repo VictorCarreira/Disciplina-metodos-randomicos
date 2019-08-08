@@ -90,17 +90,28 @@ OPEN(2,FILE='saida.txt')
  ALLOCATE(HM(1:HMS,1:NVAR),PVB(1:NVAR,1:2),dado(6,2))
  ALLOCATE(fit(1:HMS),NCHV(1:NVAR),BestGen(1:NVAR),BW(1:NVAR),gx(1:NG))
 
+ !ZERANDO VARIÁVEIS:
+ HM=0.0d0
+ PVB=0.0d0
+ dado=0.0d0
+ fit=0.0d0
+ NCHV=0.0d0
+ BestGen=0.0d0
+ BW=0.0d0
+ gx=0.0d0
+
 
  DO i=1,6
   READ(1,FMT=*)dado(i,1),dado(i,2) 
  END DO  
 
 
- CALL initialize()
+ CALL INITIALIZE(HMS,NVAR,fit,PVB,HM)
+ !CALL initialize()
 
  currentIteration  = 0
 
-!DO WHILE(currentIteration<MaxItr)
+DO WHILE(currentIteration<MaxItr)
    PAR=(PARmax-PARmin)/(MaxItr)*currentIteration+PARmin
    coef=LOG(bwmin/bwmax)/MaxItr
   DO pp =1,NVAR
@@ -133,10 +144,10 @@ OPEN(2,FILE='saida.txt')
         NCHV(i) = randval( PVB(i,1), PVB(i,2) )
        END IF       
    newFitness = Phi(dado,HM(i,1),HM(i,2))
-   !CALL UpdateHM( newFitness )
+   CALL UpdateHM(currentIteration,HMS,BestGen,fit, NCHV, HM,  newFitness )
    currentIteration=currentIteration+1
   END DO
-!END DO
+END DO
 
  CALL cpu_time(tf)
 
@@ -169,8 +180,10 @@ CONTAINS
 
  END FUNCTION Phi
 !---------------------------------------------------------
- SUBROUTINE INITIALIZE()
-
+ SUBROUTINE INITIALIZE(HMS,NVAR,fit,PVB,HM)
+ INTEGER(8),INTENT(IN)::HMS,NVAR
+ REAL(8),INTENT(INOUT),DIMENSION(:)::fit
+ REAL(8),INTENT(INOUT),DIMENSION(:,:)::PVB,HM
  INTEGER::i,j,z
  REAL(8), DIMENSION(:,:), ALLOCATABLE::SUBS
  REAL(8)::a,b
@@ -217,94 +230,61 @@ print*,HM(5,1),HM(5,2)
 
  END SUBROUTINE INITIALIZE
 !----------------------------------------------------------------------
-SUBROUTINE UpdateHM(currentIteration,BestGen,fit, NCHV, HM, NewFit )
+SUBROUTINE UpdateHM(currentIteration,HMS,BestGen,fit, NCHV, HM, NewFit )
 
   REAL(8),INTENT(INOUT)::NewFit
-  REAL(8),INTENT(IN),DIMENSION(:):: BestGen,fit,NCHV
-  REAL(8),INTENT(IN),DIMENSION(:,:)::HM
-  REAL(8),INTENT(IN):: currentIteration
+  REAL(8),INTENT(INOUT),DIMENSION(:):: BestGen,fit,NCHV
+  REAL(8),INTENT(INOUT),DIMENSION(:,:)::HM
+  INTEGER(8),INTENT(IN):: currentIteration,HMS
   REAL(8)::BestFit,WorstFit
   INTEGER(8)::BestIndex,WorstIndex,i,j
 
 IF(currentIteration==0) THEN
-
-BestFit=fit(1)
-
-DO i = 1,HMS
-
-IF( fit(i) < BestFit ) THEN
-
-BestFit = fit(i)
-
-BestIndex =i
-
-end IF
-
-end DO
-
-WorstFit=fit(1)
-WorstIndex =1
-DO i = 1,HMS
-
-if( fit(i) > WorstFit ) THEN
-
-WorstFit = fit(i)
-
-WorstIndex =i
-
-END IF
-
-END DO
-
-ELSE
-
- IF (NewFit< WorstFit) THEN
-
-IF( NewFit < BestFit ) THEN
-
-DO j=1,NVAR
-
-HM(WorstIndex,j)=NCHV(j)
-
-END DO
-
-BestFit=NewFit
-BestGen=NCHV
-fit(WorstIndex)=NewFit
-BestIndex=WorstIndex
-
-ELSE
-
-DO j=1,NVAR
-
-  HM(WorstIndex,j)=NCHV(j)
-
-END DO
-
-fit(WorstIndex)=NewFit
-
-WorstFit=fit(1)
-WorstIndex =1
-
-DO i = 1,HMS
-IF( fit(i) > WorstFit ) THEN
-WorstFit = fit(i)
-WorstIndex =i
-END IF
-END DO
-
-
-END IF
-
- END IF ! main if
-
+  BestFit=fit(1)
+   DO i = 1,HMS
+      IF( fit(i) < BestFit ) THEN
+        BestFit = fit(i)
+        BestIndex =i
+      END IF
+   END DO
+  WorstFit=fit(1)
+  WorstIndex =1
+   DO i = 1,HMS
+     IF( fit(i) > WorstFit ) THEN 
+       WorstFit = fit(i)
+       WorstIndex =i
+     END IF
+   END DO  
+   ELSE
+     IF (NewFit< WorstFit) THEN
+      IF( NewFit < BestFit ) THEN
+        DO j=1,NVAR
+          HM(WorstIndex,j)=NCHV(j)
+        END DO
+         BestFit=NewFit
+         BestGen=NCHV
+         fit(WorstIndex)=NewFit
+         BestIndex=WorstIndex
+        ELSE
+         DO j=1,NVAR 
+           HM(WorstIndex,j)=NCHV(j)
+         END DO
+          fit(WorstIndex)=NewFit
+          WorstFit=fit(1)
+          WorstIndex =1
+         DO i = 1,HMS
+          IF( fit(i) > WorstFit ) THEN
+           WorstFit = fit(i)
+           WorstIndex =i
+          END IF
+         END DO
+      END IF
+    END IF 
 END IF
 
 IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
-
  PRINT*,BESTFIT,BestGen(1),BestGen(2)
  WRITE(2,FMT=*) BESTFIT,BestGen(1), BestGen(2)
-
 END IF
 
 END SUBROUTINE UpdateHM 
