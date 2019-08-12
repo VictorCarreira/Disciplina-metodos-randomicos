@@ -77,7 +77,7 @@ OPEN(2,FILE='saida.txt')
  NVAR=2 !número de parâmetros
  NG=1
  NH=0
- MaxItr=10000
+ MaxItr=100000
  HMS=5
  HMCR=0.6
  PARmin=0.4
@@ -107,7 +107,19 @@ OPEN(2,FILE='saida.txt')
 
 
  CALL INITIALIZE(HMS,NVAR,fit,PVB,HM)
- !CALL initialize()
+ 
+
+
+
+print*,'Matriz HM(inicial)=' 
+print*,HM(1,1),HM(1,2),phi(dado,HM(1,1),HM(1,2))
+print*,HM(2,1),HM(2,2),phi(dado,HM(2,1),HM(2,2))
+print*,HM(3,1),HM(3,2),phi(dado,HM(3,1),HM(3,2))
+print*,HM(4,1),HM(4,2),phi(dado,HM(4,1),HM(4,2))
+print*,HM(5,1),HM(5,2),phi(dado,HM(5,1),HM(5,2))
+print*,"========================================"
+
+
 
  currentIteration  = 0
 
@@ -145,9 +157,29 @@ DO WHILE(currentIteration<MaxItr)
        END IF       
    newFitness = Phi(dado,HM(i,1),HM(i,2))
    CALL UpdateHM(currentIteration,HMS,BestGen,fit, NCHV, HM,  newFitness )
+
+
+  
+
+
    currentIteration=currentIteration+1
   END DO
+
 END DO
+
+
+
+
+print*,'Matriz HM=' 
+print*,HM(1,1),HM(1,2),phi(dado,HM(1,1),HM(1,2))
+print*,HM(2,1),HM(2,2),phi(dado,HM(2,1),HM(2,2))
+print*,HM(3,1),HM(3,2),phi(dado,HM(3,1),HM(3,2))
+print*,HM(4,1),HM(4,2),phi(dado,HM(4,1),HM(4,2))
+print*,HM(5,1),HM(5,2),phi(dado,HM(5,1),HM(5,2))
+
+pause
+
+
 
  CALL cpu_time(tf)
 
@@ -192,14 +224,14 @@ CONTAINS
  ALLOCATE(SUBS(1:NVAR,1:HMS))
 
  ! Procedimento para inicializar HM randomicamente
- PVB(1,1) = 1.0 !amin
+ PVB(1,1) = 0.5 !amin
  PVB(1,2) =-2.0  !bmin
  PVB(2,1) = 5.0  !amax
- PVB(2,2) = 2.0  !bmax
+ PVB(2,2) = 3.0  !bmax
 
-print*,'Matriz PVB=' 
-print*,PVB(1,1),PVB(1,2)
-print*,PVB(2,1),PVB(2,2)
+!print*,'Matriz PVB=' 
+!print*,PVB(1,1),PVB(1,2)
+!print*,PVB(2,1),PVB(2,2)
 
 
 
@@ -209,12 +241,6 @@ DO i=1,HMS !5
   END DO
 END DO
 
-print*,'Matriz HM=' 
-print*,HM(1,1),HM(1,2)
-print*,HM(2,1),HM(2,2)
-print*,HM(3,1),HM(3,2)
-print*,HM(4,1),HM(4,2)
-print*,HM(5,1),HM(5,2)
 
 !pause
 !  DO z=1,NVAR
@@ -225,7 +251,7 @@ print*,HM(5,1),HM(5,2)
     a=HM(i,1)
     b=HM(i,2)
     fit(i) = Phi(dado,a,b)
-    print*,'fit(i)=',fit(i)
+   ! print*,'fit(i)=',fit(i)
  END DO
 
  END SUBROUTINE INITIALIZE
@@ -282,10 +308,10 @@ IF(currentIteration==0) THEN
     END IF 
 END IF
 
-IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
- PRINT*,BESTFIT,BestGen(1),BestGen(2)
- WRITE(2,FMT=*) BESTFIT,BestGen(1), BestGen(2)
-END IF
+!IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
+ !PRINT*,BESTFIT,BestGen(1),BestGen(2)
+ !WRITE(2,FMT=*) BESTFIT,BestGen(1), BestGen(2)
+!END IF
 
 END SUBROUTINE UpdateHM 
 

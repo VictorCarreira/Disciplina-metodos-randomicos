@@ -2,19 +2,13 @@ PROGRAM BuscaHarmonica
 
     !-----------------Sumário das Variáveis-----------------!
     !HS: Harmony memory                                     !
-    !HMS: Harmony memory size                               !
+    !HMS: Harmony memory size (number of measured points)   !
     !HMCR: Harmony consideration rate                       !
     !PAR: Pitch adjusting rate                              !
     !bw : termination criterion                             !
     !MaxItr: Maximal iteraction                             !
-    !NVAR: Number of variables                              !
+    !NVAR: Number of parameters                             !
     !-------------------------------------------------------!
-
-
-
-
-
-
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -25,19 +19,21 @@ PROGRAM BuscaHarmonica
    INTEGER,PARAMETER::SP = SELECTED_INT_KIND(r=12)
    INTEGER,PARAMETER::DP = SELECTED_REAL_KIND(12,14)
    INTEGER::NVAR,NG,NH,HMS
-   INTEGER::currentIteration,MaxItr,I,index
+   INTEGER::currentIteration,MaxItr,i,j,index
    REAL(KIND=DP)::PARmin,PARmax,bwmin,bwmax,HMCR,PAR,newFitness,BestFit,WorstFit
    REAL(KIND=DP)::coef,RES,RAN,pvbRan,ti,tf,tt
    INTEGER(KIND=DP)::pp
    REAL(KIND=DP), ALLOCATABLE, DIMENSION(:)::fit,NCHV,BestGen,BW,gx
-   REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::HM,PVB
+   REAL(KIND=DP), ALLOCATABLE, DIMENSION(:,:)::HM,PVB,dado
 
  
-OPEN(1,FILE='ajuste.txt')
+OPEN(1,FILE='entrada.txt')
+OPEN(2,FILE='saida.txt')
 
 
- !Entradas
- NVAR=10
+
+ !Dimensionando o problema:
+ NVAR=10 !Dimensão horizontal
  NG=1
  NH=0
  MaxItr=10000
@@ -50,8 +46,14 @@ OPEN(1,FILE='ajuste.txt')
 
  CALL cpu_time(ti)
 
- ALLOCATE(HM(1:HMS,1:NVAR),PVB(1:NVAR,1:2))
+ ALLOCATE(HM(1:HMS,1:NVAR),PVB(1:NVAR,1:2),dado(6,2))
  ALLOCATE(fit(1:HMS),NCHV(1:NVAR),BestGen(1:NVAR),BW(1:NVAR),gx(1:NG))
+
+
+ DO i=1,6
+  READ(1,FMT=*)dado(i,1),dado(i,2) 
+ END DO  
+
 
  CALL initialize()
 
@@ -89,7 +91,7 @@ DO WHILE(currentIteration<MaxItr)
        ELSE
         NCHV(i) = randval( PVB(i,1), PVB(i,2) )
        END IF       
-   newFitness = Fitness(NCHV)
+   newFitness = Phi(dado,1.3,0.2)
    CALL UpdateHM( newFitness )
    currentIteration=currentIteration+1
   END DO
@@ -111,16 +113,17 @@ END DO
 
 CONTAINS
 !---------------------------------------------------------
- FUNCTION Fitness(sol)
+ FUNCTION Phi(dado,a,b)
+ !Função de ajuste de dados. Datamisfit
+  REAL(8),DIMENSION(:,:),INTENT(IN)::dado
+  REAL(4)::phi,a,b
 
-  REAL(8),DIMENSION(1:),INTENT(IN)::sol
-  REAL(8)::Fitness
+  phi=0
+  DO i=1,6
+    phi=phi+(dado(i,2)-a*dado(i,1)+b)**2
+  END DO 
 
-!   Fitness=(sol(1)**2+sol(2)**2)!Função da esfera. Deu ruim!
-  Fitness=-(sol(1)+sol(2))
-!  Fitness= -(EXP(1/2*(sol(1)+sol(2)-25)**2)+sin(4*sol(1)-3*sol(2))**4+1/2*(2*sol(1)+sol(2)-10)**2)
-
- END FUNCTION Fitness
+ END FUNCTION Phi
 !---------------------------------------------------------
  SUBROUTINE INITIALIZE()
 
@@ -143,7 +146,7 @@ DO i=1,HMS
   DO z=1,NVAR
     SUBS(z)=HM(i,z)
   END DO
-    fit(i) = Fitness(SUBS)
+    fit(i) = Phi(SUBS,1,2)
 END DO
 
  END SUBROUTINE INITIALIZE
@@ -229,7 +232,7 @@ END IF
 IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
 
  PRINT*,BESTFIT,BestGen(1),BestGen(2)
- WRITE(1,FMT=*) BESTFIT,BestGen(1), BestGen(2)
+ WRITE(2,FMT=*) BESTFIT,BestGen(1), BestGen(2)
 
 END IF
 
