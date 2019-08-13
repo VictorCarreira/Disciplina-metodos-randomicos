@@ -77,13 +77,13 @@ OPEN(2,FILE='saida.txt')
  NVAR=2 !número de parâmetros da matriz HM
  NG=1
  NH=0
- MaxItr=100000
+ MaxItr=5000
  HMS=5 ! número de linhas da matriz HM
  HMCR=0.6
  PARmin=0.4
  PARmax=0.85
- bwmin=4
- bwmax=0.01
+ bwmin=0.01
+ bwmax=4
 
  CALL cpu_time(ti)
 
@@ -156,7 +156,7 @@ DO WHILE(currentIteration<MaxItr)
         NCHV(i) = randval( PVB(i,1), PVB(i,2) )
        END IF       
    newFitness = Phi(dado,HM(i,1),HM(i,2))
-   CALL UpdateHM(currentIteration,HMS,BestGen,fit, NCHV, HM,  newFitness )
+   CALL UpdateHM(currentIteration,HMS,BestGen,fit,NCHV, HM,  newFitness )
 
 
   
@@ -225,7 +225,7 @@ CONTAINS
 
  ! Procedimento para inicializar HM randomicamente
  PVB(1,1) = 0.5 !amin
- PVB(1,2) =-2.0  !bmin
+ PVB(1,2) = 0.1  !bmin
  PVB(2,1) = 5.0  !amax
  PVB(2,2) = 3.0  !bmax
 
@@ -243,8 +243,8 @@ END DO
 
 
 !pause
-!  DO z=1,NVAR
- !   SUBS(z,i)=HM(i,z)
+  !DO z=1,NVAR
+  !  SUBS(z,i)=HM(i,z)
   !END DO
 
  DO i=1,HMS
@@ -256,7 +256,7 @@ END DO
 
  END SUBROUTINE INITIALIZE
 !----------------------------------------------------------------------
-SUBROUTINE UpdateHM(currentIteration,HMS,BestGen,fit, NCHV, HM, NewFit )
+SUBROUTINE UpdateHM(currentIteration,HMS,BestGen,fit,NCHV, HM, NewFit )
 
   REAL(8),INTENT(INOUT)::NewFit
   REAL(8),INTENT(INOUT),DIMENSION(:):: BestGen,fit,NCHV
@@ -308,10 +308,10 @@ IF(currentIteration==0) THEN
     END IF 
 END IF
 
-!IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
- !PRINT*,BESTFIT,BestGen(1),BestGen(2)
- !WRITE(2,FMT=*) BESTFIT,BestGen(1), BestGen(2)
-!END IF
+IF(CURRENTITERATION/1000*1000==CURRENTITERATION) THEN
+ PRINT*,BESTFIT,HM(:,1),HM(:,2)
+ WRITE(2,FMT=*) BESTFIT,HM(:,1),HM(:,2)
+END IF
 
 END SUBROUTINE UpdateHM 
 
