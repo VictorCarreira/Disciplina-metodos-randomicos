@@ -74,11 +74,11 @@ OPEN(2,FILE='saida.txt')
 
 
 !Dimensiona os parâmetros da Busca:
- NVAR=2 !número de parâmetros
+ NVAR=2 !número de parâmetros da matriz HM
  NG=1
  NH=0
  MaxItr=100000
- HMS=5
+ HMS=5 ! número de linhas da matriz HM
  HMCR=0.6
  PARmin=0.4
  PARmax=0.85

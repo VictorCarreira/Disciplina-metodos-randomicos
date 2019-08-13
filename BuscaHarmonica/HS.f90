@@ -13,8 +13,8 @@ PROGRAM MainHarmony
  OPEN(2,FILE='100000IT.txt')
 
  NVAR=2
- NG=1
- NH=0
+ !NG=1
+ !NH=0
  MaxItr=100000
 
  HMS=5
@@ -25,7 +25,7 @@ PROGRAM MainHarmony
  bwmax=0.01
 
  ALLOCATE(HM(1:HMS,1:NVAR),PVB(1:NVAR,1:2))
- ALLOCATE(fit(1:HMS),NCHV(1:NVAR),BestGen(1:NVAR),BW(1:NVAR),gx(1:NG))
+ ALLOCATE(fit(1:HMS),NCHV(1:NVAR),BestGen(1:NVAR),BW(1:NVAR))!,gx(1:NG))
 
  CALL initialize()
 
